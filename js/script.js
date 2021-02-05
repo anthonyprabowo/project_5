@@ -4,8 +4,11 @@ const employeeHTMLArray = [];
 const gallery = document.querySelector('#gallery');
 const cards = document.getElementsByClassName('card');
 const body = document.querySelector('body');
-const modalClose = document.getElementsByClassName('modal-close-btn');
 const modal = document.getElementsByClassName('modal-container');
+const search = document.querySelector('.search-container');
+let modalContent;
+let modalBtn;
+let index = 0;
 /*
 * Fetching data from the API
 */
@@ -14,6 +17,7 @@ fetchData("https://randomuser.me/api/?results=12");
 
 // Helpers Function
 async function fetchData(url) {
+    searchBuilder();
     await fetch(url)
     .then(response => response.json())
     .then(data => data.results)
@@ -29,6 +33,21 @@ async function fetchData(url) {
         console.log(err);   
     });
     modalListener();
+    searchListener();
+    if(modal.length !== 0) {
+        modalPrev = document.querySelector('#modal-prev');
+        modalNext = document.querySelector('#modal-next');
+        modalNext.addEventListener('click', () => {
+            body.removeChild(body.lastElementChild);
+            modalBuilder(employeeInfoArray[index + 1]);
+            index += 1;
+        });
+        modalPrev.addEventListener('click', () => {
+            body.removeChild(body.lastElementChild);
+            modalBuilder = employeeInfoArray[index - 1];
+            index -= 1;
+        });
+    }
 }
 function HTMLBuilder(data) {
     const HTML = `
@@ -70,21 +89,94 @@ function modalBuilder(data){
     div.classList.add('modal-container');
     div.innerHTML = HTML;
     body.appendChild(div);
+
+    const modalButton = document.querySelectorAll('.modal-btn-container button');
+    const modalClose = document.getElementsByClassName('modal-close-btn');
+    modalContent = document.querySelector('.modal');
+    modalBtn = document.querySelector('.modal-btn-container');
+
+    modalClose[0].addEventListener('click', () => {
+        modalContent.style.animation = 'pull-up .3s ease-in-out forwards';
+        modalBtn.style.display = 'none';
+        setTimeout(() => body.removeChild(body.lastElementChild), 300); 
+    });
+    
+    for(let i = 0; i < modalButton.length; i++) {
+        modalButton[i].addEventListener('click', (e) => {
+            if(e.target.textContent === 'Next'){
+                if(index === cards.length - 1) {
+                    index = 0
+                    animationRight()
+                } else {
+                    findIndexForward();
+                    animationRight()
+                }
+            } else {
+                if(index === 0) {
+                    index = cards.length - 1;
+                    animationLeft();
+                } else {
+                    findIndexBackward();
+                    animationLeft();
+                }
+            }
+        })
+    }
 }
 
-// function populateEmployee(data) {
-//     employeeObj.picture = data.picture.medium;
-//     employeeObj.first = data.name.first;
-//     employeeObj.last = data.name.last;
-//     employeeObj.email = data.email;
-//     employeeObj.city = data.location.city;
-//     employeeObj.state = data.location.state;
-//     employeeObj.cell = data.cell;
-//     employeeObj.streetNum = data.location.street.number;
-//     employeeObj.streetName = data.location.street.name;
-//     employeeObj.postal = data.location.postcode;
-//     employeeObj.nat = data.nat
-// }
+function animationRight() {
+    setTimeout(() => {
+        body.removeChild(body.lastElementChild);
+        modalBuilder(employeeInfoArray[index]);
+    }, 400)
+    modalContent.style.animation = 'slide-right 0.5s ease-in-out forwards';
+    modalBtn.style.animation = 'slide-right 0.5s ease-in-out forwards';
+    setTimeout(() => {
+        modalContent.style.animation = 'none';
+        modalBtn.style.animation = 'none';
+    }, 500);
+}
+
+function animationLeft() {
+    setTimeout(() => {
+        body.removeChild(body.lastElementChild);
+        modalBuilder(employeeInfoArray[index]);
+    }, 400)
+    modalContent.style.animation = 'slide-left 0.5s ease-in-out forwards';
+    modalBtn.style.animation = 'slide-left 0.5s ease-in-out forwards';
+    setTimeout(() => {
+        modalContent.style.animation = 'none';
+        modalBtn.style.animation = 'none';
+    }, 500);
+}
+
+function findIndexForward() {
+    for(let i = index; i < cards.length; i++) {
+        if(cards[i].style.display !== 'none' && i !== index){
+            index = i;
+            break;
+        } 
+    }
+}
+
+function findIndexBackward() {
+    for(let i = index; i > -1; i--) {
+        if(cards[i].style.display !== 'none' && i !== index){
+            index = i;
+            break;
+        } 
+    }
+}
+
+function searchBuilder() {
+    const HTML = `
+        <form action="#" method="get">
+            <input type="search" id="search-input" class="search-input" placeholder="Search...">
+            <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+        </form>
+    `
+    search.innerHTML = HTML;
+}
 
 function populateHTML(target, arr){
     let html = ""
@@ -98,11 +190,29 @@ function populateHTML(target, arr){
 function modalListener() {
     for(let i = 0; i < cards.length; i++) {
         cards[i].addEventListener('click', () => {
+            index = i;
             modalBuilder(employeeInfoArray[i])
-            modalClose[0].addEventListener('click', () => body.removeChild(body.lastElementChild));
-        })
+            modalContent.style.animation = 'pull-down .3s ease-in-out forwards';
+        });
     }
 }
+
+function searchListener() {
+    const searchInput = document.querySelector('.search-input');
+    const employeeName = document.querySelectorAll('#name');
+    for(let i = 0; i < employeeName.length; i++) {
+        searchInput.addEventListener('keyup', (e) => {
+            if(employeeName[i].innerHTML.toLowerCase().includes(e.target.value.toLowerCase())){
+                employeeName[i].parentElement.parentElement.style.display = '';
+            }  else {
+                employeeName[i].parentElement.parentElement.style.display = 'none';
+            }
+        });
+    }
+    
+}
+
+
 
 
 
