@@ -16,6 +16,10 @@ let index = 0;
 fetchData("https://randomuser.me/api/?results=12");
 
 // Helpers Function
+/*
+* FETCH DATA
+* Communicate to the API through fetch and display 12 users
+*/
 async function fetchData(url) {
     searchBuilder();
     await fetch(url)
@@ -49,6 +53,12 @@ async function fetchData(url) {
         });
     }
 }
+
+/*
+* HTMLBuilder
+* Helper function that dynamically generate HTML
+*/
+
 function HTMLBuilder(data) {
     const HTML = `
         <div class="card">
@@ -65,6 +75,10 @@ function HTMLBuilder(data) {
     employeeHTMLArray.push(HTML);
 }
 
+/*
+* Modal Builder
+* Dynamically create modal on user click
+*/
 function modalBuilder(data){
     const HTML = `
         <div class="modal">
@@ -124,6 +138,7 @@ function modalBuilder(data){
     }
 }
 
+
 function animationRight() {
     setTimeout(() => {
         body.removeChild(body.lastElementChild);
@@ -168,6 +183,10 @@ function findIndexBackward() {
     }
 }
 
+/*
+* Search Builder
+* Dynamically create search feature
+*/
 function searchBuilder() {
     const HTML = `
         <form action="#" method="get">
@@ -186,7 +205,9 @@ function populateHTML(target, arr){
     target.innerHTML = html;
 }
 
-// Event Listener
+/*
+* EVENT LISTENER
+*/
 function modalListener() {
     for(let i = 0; i < cards.length; i++) {
         cards[i].addEventListener('click', () => {
